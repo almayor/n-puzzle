@@ -130,7 +130,7 @@ class Puzzle:
 		return h
 
 
-Puzzle.heuristic = Puzzle.manhatten_heuristic
+Puzzle.heuristic = Puzzle.manhattan_heuristic
 
 Puzzle.heuristic_names = {
 	"manhattan": Puzzle.manhattan_heuristic,
