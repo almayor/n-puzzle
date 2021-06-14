@@ -1,2 +1,3 @@
 cmake-build-debug
 puzzle.txt
+__pycache__
