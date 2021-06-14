@@ -89,7 +89,7 @@ class Puzzle:
 
 		cls.heuristic = cls.heuristic_names[name.lower()]
 
-	def manhatten_heuristic(self):
+	def manhattan_heuristic(self):
 		h = 0
 		n = len(self.tiles)
 		for i, row in enumerate(self.tiles):
@@ -133,7 +133,7 @@ class Puzzle:
 Puzzle.heuristic = Puzzle.manhatten_heuristic
 
 Puzzle.heuristic_names = {
-	"manhattan": Puzzle.manhatten_heuristic,
+	"manhattan": Puzzle.manhattan_heuristic,
 	"euclidian": Puzzle.euclidian_heuristic,
 	"hamming": Puzzle.hamming_heuristic
 }
