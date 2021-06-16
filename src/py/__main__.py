@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import resource
 
 from .Puzzle import Puzzle
 from .MinHeap import MinHeap
@@ -61,17 +62,19 @@ def main():
 	Puzzle.set_goal(end)
 	Puzzle.set_heuristic("manhattan")
 	start = Puzzle(tiles)
-
+	
 	if not start.is_solvable():
 		print("Puzzle is insoluble")
 		sys.exit(1)
-	else:
-		path, niter, mem_size = a_star(start)
-		print(f"NUM STEPS  = {len(path)}")
-		print(f"NUM ITERS  = {niter}")
-		print(f"MAX OPENED = {mem_size}")
-		print("\n============ SOLUTION ============\n")
-		print('\n\n'.join(repr(node) for node in path))
+
+	path, niter, mem_size = a_star(start)
+	print('\n\n'.join(repr(node) for node in path))
+	print()
+	print(f"total moves:\t\t\t{len(path) - 1}")
+	print(f"time complexity:\t\t{niter}")
+	print(f"space complexity:\t\t{mem_size}")
+
+	print(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
 
 if __name__ == "__main__":

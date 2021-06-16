@@ -5,11 +5,13 @@ class Puzzle:
 
 	goal = None
 
-	def __init__(self, tiles, parent=None):
+	def __init__(self, tiles, parent=None, h=None):
 		self.tiles = tiles
 		self.parent = parent
 		self.g = parent.g + 1 if parent else 0
-		self.h = self.heuristic()
+		self.h = h if h is not None else self.total_heuristic()
+		self.f = self.g + self.h
+		self.bytes = self.tiles.tobytes()
 
 	def get_children(self):
 		[(i, j)] = zip(*np.where(self.tiles == 0))
@@ -17,26 +19,36 @@ class Puzzle:
 		children = []
 
 		if i > 0:
-			tiles = np.copy(self.tiles)
-			tiles[i - 1, j], tiles[i, j] = tiles[i, j], tiles[i - 1, j]
-			children.append(Puzzle(tiles, self))
+			children.append(self.get_child(i, j, i - 1, j))
 		if j > 0:
-			tiles = np.copy(self.tiles)
-			tiles[i, j - 1], tiles[i, j] = tiles[i, j], tiles[i, j - 1]
-			children.append(Puzzle(tiles, self))
+			children.append(self.get_child(i, j, i, j - 1))
 		if i < n - 1:
-			tiles = np.copy(self.tiles)
-			tiles[i + 1, j], tiles[i, j] = tiles[i, j], tiles[i + 1, j]
-			children.append(Puzzle(tiles, self))
+			children.append(self.get_child(i, j, i + 1, j))
 		if j < n - 1:
-			tiles = np.copy(self.tiles)
-			tiles[i, j + 1], tiles[i, j] = tiles[i, j], tiles[i, j + 1]
-			children.append(Puzzle(tiles, self))
+			children.append(self.get_child(i, j, i, j + 1))
 
 		return children
 
+	def get_child(self, i0, j0, i1, j1):
+		tiles = np.copy(self.tiles)
+		tiles[i1, j1], tiles[i0, j0] = tiles[i0, j0], tiles[i1, j1]
+		child = Puzzle(tiles, self, self.h)
+		child.h += child.heuristic(i0, j0) - self.heuristic(i1, j1)
+		child.f = child.g + child.h
+		return child
+
+	def total_heuristic(self):
+		h = 0
+		for i, row in enumerate(self.tiles):
+			for j, val in enumerate(row):
+				if val == 0:
+					continue
+				h += self.heuristic(i, j)
+
+		return h
+
 	def is_final(self):
-		return self.heuristic() == 0
+		return self.h == 0
 
 	def is_solvable(self):
 		n = len(self.tiles)
@@ -52,7 +64,7 @@ class Puzzle:
 		[(i, j)] = zip(*np.where(self.tiles == 0))
 		if n % 2 == 1 and nperm % 2 == 1:
 			return False
-		if n % 2 == 0 and (nperm % 2 + i % 2) != n // 2 % 2:
+		if n % 2 == 0 and (nperm + i) % 2 != n // 2 % 2:
 			return False
 
 		return True
@@ -60,18 +72,25 @@ class Puzzle:
 	def __hash__(self):
 		return hash(self.tiles.tobytes())
 
+	def __lt__(self, other):
+		return self.f < other.f
+	
 	def __eq__(self, other):
-		return np.all(self.tiles == other.tiles)
+		return self.bytes == other.bytes
 
 	def __repr__(self):
+		n = len(self.tiles)
+		w = len(str(n * n - 1))
+		fmt = f"{{:{w}}}"
+
 		rows = []
 		for row in self.tiles:
-			rows.append(' '.join(f"{val: 2d}" for val in row))
+			rows.append(' '.join(fmt.format(val) for val in row))
 		return '\n'.join(rows)
 
-	@property
-	def f(self):
-		return self.g + self.h
+	# @property
+	# def f(self):
+	# 	return self.g + self.h
 	
 	@classmethod
 	def set_goal(cls, tiles):
@@ -89,45 +108,19 @@ class Puzzle:
 
 		cls.heuristic = cls.heuristic_names[name.lower()]
 
-	def manhattan_heuristic(self):
-		h = 0
-		n = len(self.tiles)
-		for i, row in enumerate(self.tiles):
-			for j, val in enumerate(row):
-				if val == 0:
-					continue
-				dst_i, dst_j = self.goal[val]
-				h += abs(i - dst_i) + abs(j - dst_j)
+	def manhattan_heuristic(self, i, j):
+		val = self.tiles[i, j]
+		dst_i, dst_j = self.goal[val]
+		return abs(i - dst_i) + abs(j - dst_j)
 
-		return h
+	def euclidian_heuristic(self, i, j):
+		val = self.tiles[i, j]
+		dst_i, dst_j = self.goal[val]
+		return np.sqrt((i - dst_i) ** 2 + (j - dst_j) ** 2)
 
-
-	def euclidian_heuristic(self):
-		h = 0
-		n = len(self.tiles)
-
-		for i, row in enumerate(self.tiles):
-			for j, val in enumerate(row):
-				if val == 0:
-					continue
-				dst_i, dst_j = self.goal[val]
-				h += np.sqrt((i - dst_i) ** 2 + (j - dst_j) ** 2)
-
-		return h
-
-
-	def hamming_heuristic(self):
-		h = 0
-		n = len(self.tiles)
-
-		for i, row in enumerate(self.tiles):
-			for j, val in enumerate(row):
-				if val == 0:
-					continue
-				if (i, j) != self.goal[val]:
-					h += 1
-
-		return h
+	def hamming_heuristic(self, i, j):
+		val = self.tiles[i, j]
+		return 1 if (i, j) != cls.goal[val] else 0
 
 
 Puzzle.heuristic = Puzzle.manhattan_heuristic

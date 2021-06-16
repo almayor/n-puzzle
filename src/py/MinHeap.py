@@ -1,3 +1,6 @@
+def cmp(n):
+	return (n.f, n.h)
+
 class MinHeap:
 
 	def __init__(self):
@@ -24,7 +27,7 @@ class MinHeap:
 
 	def update(self, node):
 		i = self.idx[node]
-		if node.f < self.heap[i].f:
+		if cmp(node) < cmp(self.heap[i]):
 			self.heap[i] = node
 			self._sift_up(i)
 			self._sift_down(i)
@@ -40,7 +43,7 @@ class MinHeap:
 
 	def _sift_up(self, i):
 		while i > 1:
-			if self.heap[i].f >= self.heap[i // 2].f:
+			if cmp(self.heap[i]) >= cmp(self.heap[i // 2]):
 				break
 			self._swap(i, i // 2)
 			i //= 2
@@ -48,13 +51,13 @@ class MinHeap:
 	def _sift_down(self, i):
 		while i * 2 < len(self):
 			if (i * 2 + 1 < len(self) and
-				self.heap[i * 2 + 1].f < self.heap[i * 2].f and
-				self.heap[i * 2 + 1].f < self.heap[i].f
+				cmp(self.heap[i * 2 + 1]) < cmp(self.heap[i * 2]) and
+				cmp(self.heap[i * 2 + 1]) < cmp(self.heap[i])
 			):
 				self._swap(i, i * 2 + 1)
 				i = i * 2 + 1
 
-			elif self.heap[i * 2].f < self.heap[i].f:
+			elif cmp(self.heap[i * 2]) < cmp(self.heap[i]):
 				self._swap(i, i * 2)
 				i = i * 2
 
