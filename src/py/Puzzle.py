@@ -216,7 +216,7 @@ class Puzzle:
 		cls.heuristic = cls.heuristic_names[name.lower()]
 
 
-Puzzle.heuristic = Puzzle.manhattan_heuristic
+Puzzle.heuristic = Puzzle.manhattan_linconf_heuristic
 
 Puzzle.heuristic_names = {
 	"manhattan": Puzzle.manhattan_heuristic,

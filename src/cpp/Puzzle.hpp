@@ -3,63 +3,78 @@
 //
 
 #pragma once
-#include <array>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include "Matrix.hpp"
 
-template<size_t N>
-class Puzzle {
+using namespace std;
+
+class Puzzle : public enable_shared_from_this<Puzzle>
+{
+
 private:
-    const Puzzle* parent = nullptr;
-    std::array<std::array<int, N>, N> const& tiles;
+    const size_t w;
 
-    size_t g;
-    size_t h;
-    bool final = false;
+    shared_ptr<const Puzzle> parent = nullptr;
+    Matrix tiles;
+    string bytes;
+    pair<int, int> zero_loc;
 
-    static size_t hammingHeuristic(std::array<std::array<int, N>, N> const& tiles);
-    static size_t euclidianHeuristic(std::array<std::array<int, N>, N> const& tiles);
-    static size_t manhattanHeuristic(std::array<std::array<int, N>, N> const& tiles);
-    static size_t manhattanLinearConflictHeuristic(std::array<std::array<int, N>, N> const& tiles);
+    size_t f = 0;
+    size_t g = 0;
+    size_t h = 0;
 
-    static std::function<size_t (std::array<std::array<int, N>, N> const&)> heuristic;
+    typedef size_t (Puzzle::*heuristicFn)(bool);
+    static heuristicFn heuristic;
+    static unordered_map<int, pair<int, int>> goal;
 
 public:
-    enum class HeuristicType {
+
+    Puzzle() = delete;
+    Puzzle(const Matrix& tiles);
+    explicit Puzzle(const Puzzle &other);
+    explicit Puzzle(const Matrix& tiles,
+                    const pair<int, int>& zero_loc,
+                    shared_ptr<const Puzzle> parent);
+
+    virtual ~Puzzle() = default;
+    bool operator==(const Puzzle& other) const;
+    Puzzle& operator=(const Puzzle& other);
+
+    const Matrix& getTiles() const;
+    shared_ptr<const Puzzle> getParent() const;
+    vector<shared_ptr<const Puzzle>> getChildren() const;
+    bool isSolvable() const;
+
+    inline const string getBytes() const { return bytes; }
+    inline size_t fDist() const { return f; }
+    inline size_t gDist() const { return g; }
+    inline size_t hDist() const { return h; }
+    inline size_t width() const { return w; }
+    inline bool isFinal() const { return h == 0; }
+
+    struct Hasher
+    {
+        size_t operator()(const Puzzle& puzzle) const;
+    };
+
+    enum class HeuristicType
+    {
         Hamming,
         Euclidian,
         Manhattan,
-        ManhattanAndLinearConflict,
+        // ManhattanLinConf,
     };
+
     static void setHeuristic(HeuristicType type);
+    static void setGoal(const Matrix& mat);
 
-    Puzzle() = delete;
-    Puzzle(const Puzzle<N> &other);
-    explicit Puzzle(std::array<std::array<int, N>, N> const& tiles);
-    explicit Puzzle(std::array<std::array<int, N>, N> const& tiles, Puzzle<N> const& parent);
-    virtual ~Puzzle();
-
-    bool operator==(Puzzle<N> const& other);
-
-    size_t getDistance() const;
-    std::array<std::array<int, N>, N> const& getTiles() const;
-    std::vector<Puzzle<N> *>* getChildren() const;
-    Puzzle<N> const* getParent() const;
-
-    bool isFinal() const;
-    void setParent(Puzzle<N> const& parent);
-
-    struct TileComparator {
-        bool operator()(const Puzzle<N> *p1, const Puzzle<N> *p2) const {
-            return p1->getTiles() > p2->getTiles();
-        }
-    };
-    struct DistComparator {
-        bool operator()(const Puzzle<N> *p1, const Puzzle<N> *p2) const {
-            return p1->getDistance() > p2->getDistance();
-        }
-    };
+    size_t manhattanHeuristic(bool relativeToParent = false);
+    size_t euclidianHeuristic(bool relativeToParent = false);
+    size_t hammingHeuristic(bool relativeToParent = false);
+    size_t linConfHeuristic(bool relativeToParent = false);
+    size_t manhattanLinConfHeuristic(bool relativeToParent = false);
 };
 
-template<size_t N>
-std::ostream& operator<<(std::ostream& os, Puzzle<N> const& puzzle);
-
-#include "Puzzle.tpp"
+ostream& operator<<(ostream& os, const Puzzle& puzzle);
