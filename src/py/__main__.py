@@ -1,21 +1,21 @@
-import numpy as np
 import sys
-import resource
+import numpy as np
 
-from .Puzzle import Puzzle
 from .MinHeap import MinHeap
+from .Puzzle import Puzzle
 from .a_star import a_star
 
 
-def parse_input():
-	line = sys.stdin.readline()
+def parse_input(f):
+	line = f.readline()
 	while line.startswith("#"): #skip comments
-		line = sys.stdin.readline()
+		line = f.readline()
 
 	rows = list()
 	n = int(line)
 	for _ in range(n):
-		row = map(int, sys.stdin.readline().strip().split())
+		line = f.readline().strip()
+		row = map(int, line.split())
 		rows.append(list(row))
 
 	return np.array(rows)
@@ -55,26 +55,23 @@ def make_goal(n):
 
 
 def main():
-	tiles = parse_input()
+	tiles = parse_input(sys.stdin)
 	n = len(tiles)
 	end = make_goal(n)
-	
 	Puzzle.set_goal(end)
-	Puzzle.set_heuristic("manhattan")
+	Puzzle.set_heuristic("manhattan_linconf")
 	start = Puzzle(tiles)
-	
+
 	if not start.is_solvable():
 		print("Puzzle is insoluble")
 		sys.exit(1)
 
 	path, niter, mem_size = a_star(start)
-	print('\n\n'.join(repr(node) for node in path))
-	print()
+	for node in path:
+		print(node, end='\n\n')
 	print(f"total moves:\t\t\t{len(path) - 1}")
 	print(f"time complexity:\t\t{niter}")
 	print(f"space complexity:\t\t{mem_size}")
-
-	print(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss)
 
 
 if __name__ == "__main__":
