@@ -14,7 +14,7 @@ class MinHeap:
 		elif mode == 'greedy':
 			self.itemize = lambda node: (node.h, self.tiebreaker, node)
 		elif mode == 'uniform':
-			self.itemize = lambda node: (-node.g, self.tiebreaker, node)
+			self.itemize = lambda node: (-node.g, -self.tiebreaker, node)
 		else:
 			raise IllegalArgumentException("unknown mode")
 
