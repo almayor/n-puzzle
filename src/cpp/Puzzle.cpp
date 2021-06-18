@@ -2,15 +2,15 @@
 // Created by Alexander Mayorov on 13/06/2021.
 //
 
-#include <iostream>
 #include <unordered_map>
 #include <unordered_set>
+#include <cmath>
 #include "Puzzle.hpp"
 #include "Matrix.hpp"
 
 using namespace std;
 
-Puzzle::Puzzle(const Puzzle& other) : tiles(other.tiles), w(other.width())
+Puzzle::Puzzle(const Puzzle& other) : w(other.width()), tiles(other.tiles)
 {
     bytes = other.bytes;
     zero_loc = other.zero_loc;
@@ -21,8 +21,31 @@ Puzzle::Puzzle(const Puzzle& other) : tiles(other.tiles), w(other.width())
     f = other.f;
 }
 
-Puzzle::Puzzle(const Matrix& tiles) : tiles(tiles), w(tiles.width())
+static void validateTiles(const Matrix& tiles)
 {
+    unordered_set<int> seen;
+
+    if (tiles.width() < 1)
+        throw invalid_argument("Puzzle cannot be empty");
+
+    for (int i = 0; i < tiles.width(); ++i) {
+        for (int j = 0; j < tiles.width(); ++j) {
+            int val = tiles(i, j);
+            if (seen.find(val) != seen.end())
+                throw invalid_argument("Puzzle has duplicated values");
+            seen.insert(val);
+        }
+    }
+
+    for (int val = 0; val < tiles.width() * tiles.width(); ++val) {
+        if (seen.find(val) == seen.end())
+            throw invalid_argument("Puzzle contains out-of-range values");
+    }
+}
+
+Puzzle::Puzzle(const Matrix& tiles) : w(tiles.width()), tiles(tiles)
+{
+    validateTiles(tiles);
     bytes = tiles.toBytes();
     zero_loc = tiles.find(0);
 
@@ -35,8 +58,8 @@ Puzzle::Puzzle(const Matrix& tiles,
                const pair<int, int>& zero_loc,
                shared_ptr<const Puzzle> parent)
 :
-    tiles(tiles),
     w(tiles.width()),
+    tiles(tiles),
     zero_loc(zero_loc)
 {
     bytes = tiles.toBytes();
@@ -121,9 +144,9 @@ size_t Puzzle::manhattanLinConfHeuristic(bool relativeToParent)
 
 size_t Puzzle::manhattanHeuristic(bool relativeToParent)
 {
-    auto singleHeuristic = [](const Matrix& tiles, pair<int, int> coords) -> size_t
+    auto singleHeuristic = [](const Matrix& mat, pair<int, int> coords) -> size_t
     {
-        int val = tiles(coords);
+        int val = mat(coords);
         if (val == 0) return 0;
         int i, j, iDst, jDst;
         tie(i, j) = coords;
@@ -149,14 +172,15 @@ size_t Puzzle::manhattanHeuristic(bool relativeToParent)
 
 size_t Puzzle::euclidianHeuristic(bool relativeToParent)
 {
-    auto singleHeuristic = [](const Matrix& tiles, pair<int, int> coords) -> size_t
+    auto singleHeuristic = [](const Matrix& mat, pair<int, int> coords) -> size_t
     {
-        int val = tiles(coords);
+        int val = mat(coords);
         if (val == 0) return 0;
         int i, j, iDst, jDst;
         tie(i, j) = coords;
         tie(iDst, jDst) = goal[val];
-        return sqrt((i - iDst) ^ 2 + (j - jDst) ^ 2);
+        double absDst = (i - iDst) * (i - iDst) + (j - jDst) * (j - jDst);
+        return ceil(sqrt(absDst));
     };
 
     if (parent == nullptr) {
@@ -177,9 +201,9 @@ size_t Puzzle::euclidianHeuristic(bool relativeToParent)
 
 size_t Puzzle::hammingHeuristic(bool relativeToParent)
 {
-    auto singleHeuristic = [](const Matrix& tiles, pair<int, int> coords) -> size_t
+    auto singleHeuristic = [](const Matrix& mat, pair<int, int> coords) -> size_t
     {
-        int val = tiles(coords);
+        int val = mat(coords);
         if (val == 0) return 0;
         return Puzzle::goal[val] == coords ? 0 : 1;
     };

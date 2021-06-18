@@ -3,15 +3,20 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <exception>
 #include "Matrix.hpp"
  
-Matrix::Matrix(size_t width) : w(width), vals(width * width, 0) {}
+Matrix::Matrix(size_t width) : w(width), vals(width * width, 0)
+{
+	if (width < 1)
+		throw invalid_argument("Width cannot be less than 1");
+}
  
 Matrix::Matrix(const Matrix& other) : w(other.w), vals(other.vals) {}
 
 Matrix::Matrix(const vector<int>& vals) : w(sqrt(vals.size())), vals(vals) {
 	if (vals.size() % w != 0)
-		throw new invalid_argument("`vals` should contain exactly (width * width) elements");
+		throw invalid_argument("Parameter `vals` should contain exactly (width * width) elements");
 }
 
 Matrix& Matrix::operator=(const Matrix& other)

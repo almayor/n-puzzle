@@ -115,7 +115,8 @@ class Puzzle:
 			val = tiles[i, j]
 			if val == 0: return 0
 			dst_i, dst_j = self.goal[val]
-			return np.sqrt((i - dst_i) ** 2 + (j - dst_j) ** 2)
+			dist = np.sqrt((i - dst_i) ** 2 + (j - dst_j) ** 2)
+			return int(dist)
 
 		if self.parent is None:
 			n = len(self.tiles)
@@ -125,7 +126,7 @@ class Puzzle:
 			single_heuristic(self.tiles, *self.parent.zero_loc) -
 			single_heuristic(self.parent.tiles, *self.zero_loc)
 		)
-		return rel_h if relative else self.parent_h + rel_h
+		return rel_h if relative else self.parent.h + rel_h
 
 	def hamming_heuristic(self, relative=False):
 		

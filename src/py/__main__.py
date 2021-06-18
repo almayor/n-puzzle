@@ -1,3 +1,4 @@
+import argparse
 import sys
 import numpy as np
 
@@ -54,12 +55,30 @@ def make_goal(n):
 	return goal
 
 
+def parse_args():
+	parser = argparse.ArgumentParser()
+	parser.add_argument(
+		'-r', '--heuristic',
+		choices=['manhattan', 'hamming', 'euclidian', 'manhattan_linconf'],
+		default='manhattan_linconf',
+		help="type of heuristic (manhattan_linconf by default)")
+	parser.add_argument(
+		'-f', '--file',
+		type=str,
+		help="file with puzzle (stdin by default)")
+	args = parser.parse_args()
+	return args
+
+
 def main():
-	tiles = parse_input(sys.stdin)
+	args = parse_args()
+	file = open(args.file, 'r') if args.file else sys.stdin
+	tiles = parse_input(file)
+	file.close()
 	n = len(tiles)
 	end = make_goal(n)
 	Puzzle.set_goal(end)
-	Puzzle.set_heuristic("manhattan_linconf")
+	Puzzle.set_heuristic(args.heuristic)
 	start = Puzzle(tiles)
 	
 	if not start.is_solvable():
