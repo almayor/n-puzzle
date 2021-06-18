@@ -7,6 +7,18 @@ from .Puzzle import Puzzle
 from .search import search
 
 
+def validate_input(arr):
+	n = len(arr)
+	seen = set()
+
+	for i in range(n):
+		for j in range(n):
+			seen.add(arr[i, j])
+
+	if n < 1 or seen != {val for val in range(n * n)}:
+		raise ValueError("Invalid puzzle")
+
+
 def parse_input(f):
 	line = f.readline()
 	while line.startswith("#"): #skip comments
@@ -19,7 +31,9 @@ def parse_input(f):
 		row = map(int, line.split())
 		rows.append(list(row))
 
-	return np.array(rows)
+	tiles = np.array(rows)
+	validate_input(tiles)
+	return tiles
 
 
 def fill_bottom_left(arr, vals, istart, jstart, iend, jend):
@@ -80,6 +94,7 @@ def main():
 	file = open(args.file, 'r') if args.file else sys.stdin
 	tiles = parse_input(file)
 	file.close()
+
 	n = len(tiles)
 	end = make_goal(n)
 	Puzzle.set_goal(end)
@@ -87,7 +102,7 @@ def main():
 	start = Puzzle(tiles)
 	
 	if not start.is_solvable():
-		sys.stderr.write("Puzzle is insoluble")
+		sys.stderr.write("Puzzle is insoluble\n")
 		sys.exit(1)
 
 	path, niter, mem_size = search(start, mode=args.mode)

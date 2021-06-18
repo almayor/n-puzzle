@@ -16,7 +16,7 @@ class MinHeap:
 		elif mode == 'uniform':
 			self.itemize = lambda node: (-node.g, -self.tiebreaker, node)
 		else:
-			raise IllegalArgumentException("unknown mode")
+			raise ValueError("unknown mode")
 
 	def push(self, node: Puzzle):
 		item = self.itemize(node)
