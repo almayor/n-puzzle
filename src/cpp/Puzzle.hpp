@@ -26,7 +26,8 @@ private:
     size_t g = 0;
     size_t h = 0;
 
-    size_t countLinearConflicts(int idx, bool column) const;
+    size_t countLinearConflictsInRow(int idx) const;
+    size_t countLinearConflictsInColumn(int idx) const;
 
     typedef size_t (Puzzle::*heuristicFn)(bool);
     static heuristicFn heuristic;
@@ -57,9 +58,9 @@ public:
     inline size_t width() const { return w; }
     inline bool isFinal() const { return h == 0; }
 
-    struct Hasher
+    struct DistComparator
     {
-        size_t operator()(const Puzzle& puzzle) const;
+        bool operator()(shared_ptr<const Puzzle> p1, shared_ptr<const Puzzle> p2) const;
     };
 
     enum class HeuristicType
