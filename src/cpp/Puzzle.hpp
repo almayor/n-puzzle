@@ -29,6 +29,12 @@ private:
     size_t countLinearConflictsInRow(int idx) const;
     size_t countLinearConflictsInColumn(int idx) const;
 
+    size_t manhattanHeuristic(bool relativeToParent = false);
+    size_t euclidianHeuristic(bool relativeToParent = false);
+    size_t hammingHeuristic(bool relativeToParent = false);
+    size_t linConfHeuristic(bool relativeToParent = false);
+    size_t manhattanLinConfHeuristic(bool relativeToParent = false);
+
     typedef size_t (Puzzle::*heuristicFn)(bool);
     static heuristicFn heuristic;
     static unordered_map<int, pair<int, int>> goal;
@@ -73,12 +79,6 @@ public:
 
     static void setHeuristic(HeuristicType type);
     static void setGoal(const Matrix& mat);
-
-    size_t manhattanHeuristic(bool relativeToParent = false);
-    size_t euclidianHeuristic(bool relativeToParent = false);
-    size_t hammingHeuristic(bool relativeToParent = false);
-    size_t linConfHeuristic(bool relativeToParent = false);
-    size_t manhattanLinConfHeuristic(bool relativeToParent = false);
 };
 
 ostream& operator<<(ostream& os, const Puzzle& puzzle);
