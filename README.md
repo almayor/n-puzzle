@@ -20,6 +20,8 @@ In addition, the Python implementation can accept multiple search modes:
 
 ---
 
+### Executing
+
 To generate puzzles,
 
 ```sh
@@ -41,3 +43,9 @@ make
 ./solver --help
 ./solver < "your-puzzle-file"
 ```
+
+---
+### References
+* The `npuzzle_gen.py` script was shipped with the assignment and is courtesy of [School 42](https://en.wikipedia.org/wiki/42_(school))
+* [Explanation of heuristics, esp. linear conflicts](https://medium.com/swlh/looking-into-k-puzzle-heuristics-6189318eaca2)
+* Multiple articles from [geeksforgeeks.org](geeksforgeeks.org) that have helped me enormously when writing C++ code.
