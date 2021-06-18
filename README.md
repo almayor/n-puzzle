@@ -4,7 +4,7 @@ An implementation of A* algorithm to solve the N Puzzle problem. N Puzzle is a g
 
 Please note that the puzzle is solved when a "snail" state is achieved, which is different from the classical goal state. Here are examples ![](./docs/snail_states.png)
 
-You can choose one of the following admissible heuristic functions (in order of increase efficiency)
+You can choose one of the following admissible heuristic functions (in order of increasing efficiency)
 
 1. Hamming 
 2. Euclidian
