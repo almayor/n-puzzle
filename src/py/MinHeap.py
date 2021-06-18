@@ -4,13 +4,23 @@ import heapq
 
 class MinHeap:
 
-	def __init__(self):
+	def __init__(self, mode='a_star'):
 		self.heap = []
 		self.tiebreaker = 0
 		self.max_size = 0
+		
+		if mode == 'a_star':
+			self.itemize = lambda node: (node.f, -node.g, self.tiebreaker, node)
+		elif mode == 'greedy':
+			self.itemize = lambda node: (node.h, self.tiebreaker, node)
+		elif mode == 'uniform':
+			self.itemize = lambda node: (-node.g, self.tiebreaker, node)
+		else:
+			raise IllegalArgumentException("unknown mode")
 
 	def push(self, node: Puzzle):
-		heapq.heappush(self.heap, (node.f, -node.g, self.tiebreaker, node))
+		item = self.itemize(node)
+		heapq.heappush(self.heap, item)
 		self.tiebreaker += 1
 		self.max_size = max(self.max_size, len(self.heap))
 
@@ -25,3 +35,4 @@ class MinHeap:
 
 	def __bool__(self):
 		return len(self.heap) > 0
+

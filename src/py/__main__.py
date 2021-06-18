@@ -4,7 +4,7 @@ import numpy as np
 
 from .MinHeap import MinHeap
 from .Puzzle import Puzzle
-from .a_star import a_star
+from .search import search
 
 
 def parse_input(f):
@@ -63,6 +63,11 @@ def parse_args():
 		default='manhattan_linconf',
 		help="type of heuristic (manhattan_linconf by default)")
 	parser.add_argument(
+		'-m', '--mode',
+		choices=['a_star', 'greedy', 'uniform'],
+		default='a_star',
+		help="search mode (a_star by default)")
+	parser.add_argument(
 		'-f', '--file',
 		type=str,
 		help="file with puzzle (stdin by default)")
@@ -85,7 +90,7 @@ def main():
 		sys.stderr.write("Puzzle is insoluble")
 		sys.exit(1)
 
-	path, niter, mem_size = a_star(start)
+	path, niter, mem_size = search(start, mode=args.mode)
 	for node in path:
 		print(node, end='\n\n')
 	print(f"total moves:\t\t\t{len(path) - 1}")
