@@ -24,7 +24,7 @@ To run Python version,
 ```sh
 python3 -m pip install -r requirements.txt
 python3 solver.py --help
-python3 solver.py < <your-puzzle-file>
+python3 solver.py < "your-puzzle-file"
 ```
 
 To run C++ version,
@@ -32,5 +32,5 @@ To run C++ version,
 ```sh
 make
 ./solver --help
-./solver < <your-puzzle-file>
+./solver < "your-puzzle-file"
 ```
