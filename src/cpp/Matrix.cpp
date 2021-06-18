@@ -1,24 +1,49 @@
 #include <iomanip>
 #include <vector>
 #include <string>
+#include <sstream>
 #include "Matrix.hpp"
-
  
 Matrix::Matrix(size_t width) : w(width), vals(width, 0) {}
  
+Matrix::Matrix(const Matrix& other) : w(other.w), vals(other.vals) {}
+
 Matrix::Matrix(const vector<int>& vals) : w(sqrt(vals.size())), vals(vals) {
 	if (vals.size() % w != 0)
 		throw new invalid_argument("`vals` should contain exactly (width * width) elements");
 }
  
-Matrix::Matrix(const Matrix& other) : w(other.w), vals(other.vals) {}
-
 Matrix& Matrix::operator=(const Matrix& other)
 {
 	if (w != other.w)
 		throw invalid_argument("Matrix dimensions doesn't match");
 	vals = other.vals;
 	return *this;
+}
+
+const int& Matrix::operator()(int i, int j) const
+{
+	return vals[i * w + j];
+}
+
+int& Matrix::operator()(int i, int j)
+{
+	return vals[i * w + j];
+}
+
+const int& Matrix::operator()(const pair<int, int>& coords) const
+{
+	return vals[coords.first * w + coords.second];
+}
+
+int& Matrix::operator()(const pair<int, int>& coords)
+{
+	return vals[coords.first * w + coords.second];
+}
+
+size_t Matrix::width() const
+{
+	return w;
 }
 
 string Matrix::toBytes() const
@@ -35,9 +60,7 @@ string Matrix::toBytes() const
 
 void Matrix::swap(const pair<int, int>& p1, const pair<int, int>& p2)
 {
-	int tmp = (*this)(p1);
-	(*this)(p1) = (*this)(p2);
-	(*this)(p2) = tmp;
+	std::swap((*this)(p1), (*this)(p2));
 }
 
 pair<int, int> Matrix::find(int val) const
@@ -57,10 +80,10 @@ ostream& operator<<(ostream& os, const Matrix& mat)
 
     for (size_t i = 0; i < mat.width(); ++i) {
         for (size_t j = 0; j < mat.width(); ++j) {
-        	if (j > 0) os << ' ';
             os << setw(fwidth) << mat(i, j);
+            if (j < mat.width() - 1) os << ' ';
         }
-        os << endl;
+        if (i < mat.width() - 1) os << endl;
     }
     return os;
 }

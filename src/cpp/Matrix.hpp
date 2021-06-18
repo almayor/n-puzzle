@@ -1,7 +1,6 @@
 #pragma once
-#include <array>
+#include <vector>
 #include <string>
-#include <sstream>
 using namespace std;
 
 class Matrix
@@ -18,22 +17,12 @@ public:
 	~Matrix() = default;
 	Matrix& operator=(const Matrix& other);
 
-	inline const int& operator()(int i, int j) const {
-		return vals[i * w + j];
-	}
-	inline int& operator()(int i, int j) {
-		return vals[i * w + j];
-	}
-	inline const int& operator()(const pair<int, int>& coords) const {
-		return vals[coords.first * w + coords.second];
-	}
-	inline int& operator()(const pair<int, int>& coords) {
-		return vals[coords.first * w + coords.second];
-	}
-	inline size_t width() const {
-		return w;
-	}
-
+	int& operator()(int i, int j);
+	int& operator()(const pair<int, int>& coords);
+	const int& operator()(int i, int j) const;
+	const int& operator()(const pair<int, int>& coords) const;
+	
+	size_t width() const;
 	string toBytes() const;
 	pair<int, int> find(int val) const;
 	void swap(const pair<int, int>& p1, const pair<int, int>& p2);

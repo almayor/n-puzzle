@@ -2,8 +2,8 @@
 // Created by Alexander Mayorov on 13/06/2021.
 //
 
-#include <iostream>
-#include <vector>
+#include <unordered_map>
+#include <unordered_set>
 #include "Puzzle.hpp"
 #include "Matrix.hpp"
 
@@ -25,7 +25,7 @@ Puzzle::Puzzle(const Matrix& tiles) : tiles(tiles), w(tiles.width())
     bytes = tiles.toBytes();
     zero_loc = tiles.find(0);
 
-    g = 0; //TODO
+    g = 0;
     h = invoke(Puzzle::heuristic, *this, false);
     f = g + h;
 }
@@ -108,13 +108,23 @@ bool Puzzle::isSolvable() const
     return true;
 }
 
+size_t Puzzle::manhattanLinConfHeuristic(bool relativeToParent)
+{
+    if (parent == nullptr) {
+        return manhattanHeuristic() + linConfHeuristic();
+    }
+
+    size_t hRel = manhattanHeuristic(true) + linConfHeuristic(true);
+    return relativeToParent ? hRel : hRel + parent->h;
+}
+
 size_t Puzzle::manhattanHeuristic(bool relativeToParent)
 {
     auto singleHeuristic = [](const Matrix& tiles, pair<int, int> coords) -> size_t
     {
-        int i, j, iDst, jDst;
         int val = tiles(coords);
         if (val == 0) return 0;
+        int i, j, iDst, jDst;
         tie(i, j) = coords;
         tie(iDst, jDst) = goal[val];
         return abs(i - iDst) + abs(j - jDst);
@@ -140,9 +150,9 @@ size_t Puzzle::euclidianHeuristic(bool relativeToParent)
 {
     auto singleHeuristic = [](const Matrix& tiles, pair<int, int> coords) -> size_t
     {
-        int i, j, iDst, jDst;
         int val = tiles(coords);
         if (val == 0) return 0;
+        int i, j, iDst, jDst;
         tie(i, j) = coords;
         tie(iDst, jDst) = goal[val];
         return sqrt((i - iDst) ^ 2 + (j - jDst) ^ 2);
@@ -189,9 +199,88 @@ size_t Puzzle::hammingHeuristic(bool relativeToParent)
     return relativeToParent ? hRel : hRel + parent->h;
 }
 
-size_t Puzzle::linConfHeuristic(bool relative)
+size_t Puzzle::linConfHeuristic(bool relativeToParent)
 {
-    return 0; //TODO
+    if (parent == nullptr) {
+        size_t h = 0;
+        for (int i = 0; i < w; ++i) {
+            h += 2 * countLinearConflicts(i, false);
+        }
+        for (int j = 0; j < w; ++j) {
+            h += 2 * countLinearConflicts(j, true);
+        }
+        return h;
+    }
+
+    int i, j, k, l;
+    tie(i, j) = zero_loc;
+    tie(k, l) = parent->zero_loc;
+    size_t hRel = 0;
+
+    if (i == k) {
+        hRel = 2 * (countLinearConflicts(l, false) - parent->countLinearConflicts(j, true));
+    } else {
+        hRel = 2 * (countLinearConflicts(k, false) - parent->countLinearConflicts(i, true));
+    }
+
+    return relativeToParent ? hRel : hRel + parent->h;
+}
+
+static int maxDegreeVertexInConflictGraph(
+    const unordered_map<int, unordered_set<int>> conflictGraph)
+{
+    size_t max_size = 0;
+    int max_val = -1;
+
+    for (auto& it : conflictGraph) {
+        if (it.second.size() > max_size) {
+            max_size = it.second.size();
+            max_val = it.first;
+        }
+    }
+    return max_val;
+}
+
+size_t Puzzle::countLinearConflicts(int idx, bool column) const
+{
+    size_t nConf = 0;
+    size_t nPairs = 0;
+    unordered_map<int, unordered_set<int>> conflictGraph;
+
+    for (int j = 0; j < w; ++j) {
+        int v1 = tiles(idx, j);
+        pair<int, int> t1 = goal[v1];
+        if (v1 == 0 || column ? t1.second : t1.first != idx)
+            continue;
+        for (int k = j + 1; k < w; ++k) {
+            int v2 = tiles(idx, k);
+            pair<int, int> t2 = goal[v2];
+            if (v2 == 0 || column ? t2.second : t2.first != idx)
+                continue;
+            if (column ? t1.first : t1.second > column ? t2.first : t2.second) {
+                if (conflictGraph.find(v1) == conflictGraph.end())
+                    conflictGraph[v1] = unordered_set<int>();
+                if (conflictGraph.find(v2) == conflictGraph.end())
+                    conflictGraph[v2] = unordered_set<int>();
+                conflictGraph[v1].insert(v2);
+                conflictGraph[v2].insert(v1);
+                ++nPairs;
+            }
+        }
+    }
+
+    while (nPairs > 0) {
+        int node = maxDegreeVertexInConflictGraph(conflictGraph);
+        unordered_set<int> neighbors = conflictGraph[node];
+        nPairs -= neighbors.size();
+        for (int neighbor : neighbors) {
+            ++nConf;
+            conflictGraph[neighbor].erase(node);
+        }
+        conflictGraph.erase(node);
+    }
+
+    return nConf;
 }
 
 void Puzzle::setGoal(const Matrix& mat)
@@ -217,6 +306,9 @@ void Puzzle::setHeuristic(Puzzle::HeuristicType type)
             break;
         case Puzzle::HeuristicType::Manhattan:
             Puzzle::heuristic = &Puzzle::manhattanHeuristic;
+            break;
+        case Puzzle::HeuristicType::ManhattanLinConf:
+            Puzzle::heuristic = &Puzzle::manhattanLinConfHeuristic;
             break;
     }
 }

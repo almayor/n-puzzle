@@ -14,13 +14,14 @@ int main() {
 	Puzzle::setGoal(goal);
 	Puzzle::setHeuristic(Puzzle::HeuristicType::Manhattan);
 
-	Puzzle puzzle({{
+	Puzzle puzzle = {{{
 		1, 2, 3,
-		5, 8, 4,
-		7, 6, 0
-	}});
-	cout << puzzle;
+		8, 0, 4,
+		7, 6, 5
+	}}};
+	cout << puzzle << endl;
 	cout << puzzle.hDist() << endl;
+	cout << puzzle.isFinal() << endl;
 	// Puzzle<3>::setGoal(mat);
 	// cout << mat << endl;
 	// Puzzle<3> = 

@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <ostream>
 #include "Matrix.hpp"
 
 using namespace std;
@@ -24,6 +25,8 @@ private:
     size_t f = 0;
     size_t g = 0;
     size_t h = 0;
+
+    size_t countLinearConflicts(int idx, bool column) const;
 
     typedef size_t (Puzzle::*heuristicFn)(bool);
     static heuristicFn heuristic;
@@ -64,7 +67,7 @@ public:
         Hamming,
         Euclidian,
         Manhattan,
-        // ManhattanLinConf,
+        ManhattanLinConf,
     };
 
     static void setHeuristic(HeuristicType type);
