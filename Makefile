@@ -18,7 +18,7 @@ MKDIR = /bin/mkdir
 
 COMPILE = $(CC) -c
 # CFLAGS += -Werror -Wextra -Wall
-CFLAGS += -std=c++17
+CFLAGS += -std=c++17 -O2
 CFLAGS += -MMD
 CFLAGS += $(foreach path, $(PATHI), -I$(path))
 

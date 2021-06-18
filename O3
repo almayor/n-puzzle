@@ -1,0 +1,18 @@
+O3
+124K
+4.96s user 0.12s system 98% cpu 5.151 total
+
+O2
+125K
+4.95s user 0.13s system 99% cpu 5.094 total
+
+O1
+347K
+11.22s user 0.15s system 94% cpu 11.993 total
+
+no optimization
+476K
+16.07s user 0.18s system 96% cpu 16.893 total
+
+python
+32.39s user 1.64s system 103% cpu 32.724 total
