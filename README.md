@@ -1,6 +1,6 @@
 # N Puzzle
 
-An implementation of A* algorithm to solve the N Puzzle problem. N Puzzle is a generalization of a famous [15 Puzzle problem](https://en.wikipedia.org/wiki/15_puzzle). Both Python and C++ implementations are provided.  
+An implementation of A* algorithm to solve the N Puzzle problem. N Puzzle is a generalization of the famous [15 Puzzle problem](https://en.wikipedia.org/wiki/15_puzzle). Both Python and C++ implementations are provided.  
 
 Please note that the puzzle is solved when a "snail" state is achieved, which is different from the classical goal state. Here are examples ![](./docs/snail_states.png)
 
