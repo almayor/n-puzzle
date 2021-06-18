@@ -13,7 +13,7 @@ You can choose one of the following admissible heuristic functions (in order of 
 
 ---
 
-To generate puzzles run
+To generate puzzles,
 
 ```sh
 python3 npuzzle_gen.py --help

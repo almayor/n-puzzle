@@ -6,6 +6,8 @@ from collections import defaultdict
 class Puzzle:
 
 	goal = None
+	heuristic = None
+	heuristic_names = {}
 
 	def __init__(self, tiles, parent=None, zero_loc=None):
 		self.tiles = tiles
