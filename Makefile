@@ -62,7 +62,7 @@ fclean : clean
 	$(RM) -f $(NAME)
 
 clean :
-	$(RM) -rf $(PATHO)
+	$(RM) -rf obj
 
 re : fclean all
 
