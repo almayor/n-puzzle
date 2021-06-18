@@ -61,9 +61,9 @@ def main():
 	Puzzle.set_goal(end)
 	Puzzle.set_heuristic("manhattan_linconf")
 	start = Puzzle(tiles)
-
+	
 	if not start.is_solvable():
-		print("Puzzle is insoluble")
+		sys.stderr.write("Puzzle is insoluble")
 		sys.exit(1)
 
 	path, niter, mem_size = a_star(start)

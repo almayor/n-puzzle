@@ -18,33 +18,33 @@ static stack<shared_ptr<const Puzzle>> tracePath(shared_ptr<const Puzzle> puzzle
 
 tuple<stack<shared_ptr<const Puzzle>>, size_t, size_t> aStar(shared_ptr<const Puzzle> node)
 {
-   unordered_map<string, size_t> closed;
-   priority_queue<shared_ptr<const Puzzle>,
+	unordered_map<string, size_t> closed;
+	priority_queue<shared_ptr<const Puzzle>,
 				  vector<shared_ptr<const Puzzle>>,
-				  typename Puzzle::DistComparator> opened;
+				  Puzzle::DistComparator> opened;
 
 	closed[node->getBytes()] = node->fDist();
 	opened.push(node);
 	size_t nIter = 0;
-	size_t maxSize = 0;
+	size_t queueMaxSize = 0;
 
 	while (!opened.empty()) {
-	    node = opened.top();
-	    opened.pop();
-	   
-	    if (node->isFinal())
-		   break;
+		node = opened.top();
+		opened.pop();
+		
+		if (node->isFinal())
+		  break;
 
-	    for (shared_ptr<const Puzzle> child : node->getChildren()) {
-		    auto lookup = closed.find(child->getBytes());
-		    if (lookup != closed.end() && lookup->second <= child->fDist())
+		for (shared_ptr<const Puzzle> child : node->getChildren()) {
+			auto lookup = closed.find(child->getBytes());
+			if (lookup != closed.end() && lookup->second <= child->fDist())
 				continue;
 			opened.push(child);
 			closed[child->getBytes()] = child->fDist();
-			maxSize = max(maxSize, opened.size());
-	    }
+			queueMaxSize = max(queueMaxSize, opened.size());
+		}
 		++nIter;
-    }
+	}
 	stack<shared_ptr<const Puzzle>> path = tracePath(node);
-	return make_tuple(path, nIter, maxSize);
+	return make_tuple(path, nIter, queueMaxSize);
 }

@@ -40,8 +40,8 @@ Puzzle::Puzzle(const Matrix& tiles,
     zero_loc(zero_loc)
 {
     bytes = tiles.toBytes();
-    this->parent = parent;
     g = parent->g + 1;
+    this->parent = parent;
     h = invoke(Puzzle::heuristic, *this, false);
     f = g + h;
 }
@@ -220,13 +220,17 @@ size_t Puzzle::linConfHeuristic(bool relativeToParent)
 
     if (i == k) {
         hRel = 2 * (
-            countLinearConflictsInRow(l) -
-            parent->countLinearConflictsInRow(j)
+            countLinearConflictsInColumn(j)
+            + countLinearConflictsInColumn(l)
+            - parent->countLinearConflictsInColumn(j)
+            - parent->countLinearConflictsInColumn(l)
         );
     } else {
         hRel = 2 * (
-            countLinearConflictsInColumn(k) -
-            parent->countLinearConflictsInColumn(i)
+            countLinearConflictsInRow(i)
+            + countLinearConflictsInRow(k)
+            - parent->countLinearConflictsInRow(i)
+            - parent->countLinearConflictsInRow(k)
         );
     }
 
@@ -234,7 +238,7 @@ size_t Puzzle::linConfHeuristic(bool relativeToParent)
 }
 
 static int maxDegreeVertexInConflictGraph(
-    const unordered_map<int, unordered_set<int>> conflictGraph)
+    const unordered_map<int, unordered_set<int>>& conflictGraph)
 {
     size_t max_size = 0;
     int max_val = -1;
@@ -327,10 +331,10 @@ size_t Puzzle::countLinearConflictsInColumn(int idx) const
 
 bool Puzzle::DistComparator::operator()(shared_ptr<const Puzzle> p1, shared_ptr<const Puzzle> p2) const
 {
-    if (p1->fDist() > p2->fDist())
-        return true;
-    if (p1->gDist() < p2->gDist())
-        return true;
+    if (p1->fDist() != p2->fDist())
+        return p1->fDist() > p2->fDist();
+    if (p1->gDist() != p2->gDist())
+        return p1->gDist() < p2->gDist();
     return false;
 }
 

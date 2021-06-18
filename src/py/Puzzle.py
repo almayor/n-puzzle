@@ -160,13 +160,17 @@ class Puzzle:
 
 		if i == k:
 			rel_h += 2 * (
-				self.get_linear_conflicts(l, column=True) -
-				self.parent.get_linear_conflicts(j, column=True)
+				self.get_linear_conflicts(j, column=True)
+				+ self.get_linear_conflicts(l, column=True)
+				- self.parent.get_linear_conflicts(j, column=True)
+				- self.parent.get_linear_conflicts(l, column=True)
 			)
 		else:
 			rel_h += 2 * (
-				self.get_linear_conflicts(k, column=False) -
-				self.parent.get_linear_conflicts(i, column=False)
+				self.get_linear_conflicts(i, column=False)
+				+ self.get_linear_conflicts(k, column=False)
+				- self.parent.get_linear_conflicts(i, column=False)
+				- self.parent.get_linear_conflicts(k, column=False)
 			)
 		return rel_h if relative else self.parent.h + rel_h
 

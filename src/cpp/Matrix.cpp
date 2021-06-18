@@ -1,10 +1,11 @@
+#include <iostream>
 #include <iomanip>
 #include <vector>
 #include <string>
 #include <sstream>
 #include "Matrix.hpp"
  
-Matrix::Matrix(size_t width) : w(width), vals(width, 0) {}
+Matrix::Matrix(size_t width) : w(width), vals(width * width, 0) {}
  
 Matrix::Matrix(const Matrix& other) : w(other.w), vals(other.vals) {}
 
@@ -12,7 +13,7 @@ Matrix::Matrix(const vector<int>& vals) : w(sqrt(vals.size())), vals(vals) {
 	if (vals.size() % w != 0)
 		throw new invalid_argument("`vals` should contain exactly (width * width) elements");
 }
- 
+
 Matrix& Matrix::operator=(const Matrix& other)
 {
 	if (w != other.w)
@@ -76,7 +77,8 @@ pair<int, int> Matrix::find(int val) const
 
 ostream& operator<<(ostream& os, const Matrix& mat)
 {
-	size_t fwidth = to_string(mat.width() ^ 2 - 1).length();
+	int maxNum = mat.width() * mat.width() - 1;
+	size_t fwidth = to_string(maxNum).length();
 
     for (size_t i = 0; i < mat.width(); ++i) {
         for (size_t j = 0; j < mat.width(); ++j) {

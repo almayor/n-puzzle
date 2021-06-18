@@ -14,7 +14,7 @@ public:
 	Matrix(size_t width);
 	Matrix(const vector<int>& vals);
 	Matrix(const Matrix& other);
-	~Matrix() = default;
+	virtual ~Matrix() = default;
 	Matrix& operator=(const Matrix& other);
 
 	int& operator()(int i, int j);
@@ -28,4 +28,4 @@ public:
 	void swap(const pair<int, int>& p1, const pair<int, int>& p2);
 };
 
-ostream& operator<<(std::ostream& os, const Matrix& puzzle);
+ostream& operator<<(ostream& os, const Matrix& puzzle);
