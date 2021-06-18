@@ -1,3 +1,5 @@
 cmake-build-debug
+CMakeLists.txt
 puzzle.txt
 __pycache__
+solver
